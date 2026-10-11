@@ -62,8 +62,7 @@ const loadRoute = (routePath, routeName) => {
 
 // Register API Routes
 const registerRoutes = () => {
-  app.use('/api/employees',
-    loadRoute('./routes/employeeRoutes', 'Employee Routes'));
+   app.use('/api/employees', loadRoute(path.join(__dirname, 'routes', 'employeeRoutes.js'), 'Employee Routes'));
 
   app.use('/api/tasks',
     loadRoute('./routes/taskRoutes', 'Task Routes'));
