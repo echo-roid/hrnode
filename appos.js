@@ -6,7 +6,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
-
+const employeeRoutes = require('./routes/employeeRoutes.js');
 // Configuration
 const CORS_ORIGIN =
   process.env.CORS_ORIGIN || 'http://localhost:3000';
@@ -62,7 +62,8 @@ const loadRoute = (routePath, routeName) => {
 
 // Register API Routes
 const registerRoutes = () => {
-   app.use('/api/employees', loadRoute('./routes/employeeRoutes', 'Employee Routes'));
+ 
+  app.use('/api/employees', employeeRoutes);
 
   app.use('/api/tasks',
     loadRoute('./routes/taskRoutes', 'Task Routes'));
