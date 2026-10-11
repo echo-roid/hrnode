@@ -6,6 +6,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
+const employeeRoutes = require('./routes/employeeRoutes.js');
 const taskRoutes = require('./routes/taskRoutes.js');
 const calendarRoutes = require('./routes/calendarRoutes.js');
 const leadRoutes = require('./routes/leadRoutes.js');
