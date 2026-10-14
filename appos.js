@@ -48,8 +48,7 @@ const invoiceOCRRoutes = require('./routes/InvoiceOCRRoutes.js');
 const passportOCRRoutes = require('./routes/PassportOCRRoute.js');
 const travelGuideMasterRoutes = require('./routes/travelGuideMasterRoutes.js');
 // Configuration
-const CORS_ORIGIN =
-  process.env.CORS_ORIGIN || 'https://htpanellive-smgq.vercel.app';
+const CORS_ORIGIN = 'https://htpanellive-smgq.vercel.app';
 
 // Middleware Setup
 app.use(cors({
