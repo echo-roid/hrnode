@@ -27,9 +27,9 @@ const path = require('path');
 const pool = mysql.createPool({
   host: "mysql-98a0b01-labail787-7142.i.aivencloud.com",
   port: Number(process.env.DB_PORT || 24433),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  user: "avnadmin",
+  password: "AVNS_rQZC3_tzaZ0ZVbYKRoO",
+  database:"defaultdb",
   ssl: {
     ca: fs.readFileSync(
       path.join(__dirname, '..', 'ca.pem'),
