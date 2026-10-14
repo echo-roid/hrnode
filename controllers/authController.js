@@ -47,13 +47,13 @@ const authController = {
           level: employee.level,
           designation: employee.designation
         },
-        process.env.JWT_SECRET,
+        "4f7d2a8e1b3c9f6a5d0e2b8c7a1d5f3e9b2c6a8d1f4e7c3b9a5d2e8f1c6a4b7",
         { expiresIn: '15m' }
       );
 
       const refreshToken = jwt.sign(
         { email: employee.email },
-        process.env.JWT_REFRESH_SECRET,
+        "9b3a7e2d5c8f1a4b6d9e3c7a2b5d8f1c4e9a6b3d7e2c5a8f1b4d9",
         { expiresIn: '7d' }
       );
 
@@ -94,7 +94,7 @@ const authController = {
 
     jwt.verify(
       refreshToken,
-      process.env.JWT_REFRESH_SECRET,
+      "9b3a7e2d5c8f1a4b6d9e3c7a2b5d8f1c4e9a6b3d7e2c5a8f1b4d9",
       async (err, decoded) => {
         if (err) return res.status(403).json({ success: false, error: 'Forbidden' });
 
@@ -115,7 +115,7 @@ const authController = {
             level: employee.level,
             designation: employee.designation
           },
-          process.env.JWT_SECRET,
+          "4f7d2a8e1b3c9f6a5d0e2b8c7a1d5f3e9b2c6a8d1f4e7c3b9a5d2e8f1c6a4b7",
           { expiresIn: '15m' }
         );
 
