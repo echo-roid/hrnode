@@ -4,8 +4,28 @@ const upload = require('../middleware/upload');
 const employeeController = require('../controllers/employeeController');
 
 // Upload photo and create employee
-router.post('/', upload.single('photo'), employeeController.createEmployee);
-router.put('/employees/:id', upload.single('photo'), employeeController.editEmployee);
+
+const {
+  uploadEmployeePhoto,
+  saveEmployeePhotoToR2
+} = require('../middleware/employeePhotoR2');
+
+// CREATE EMPLOYEE
+router.post(
+  '/',
+  uploadEmployeePhoto.single('photo'),
+  saveEmployeePhotoToR2,
+  employeeController.createEmployee
+);
+
+// EDIT EMPLOYEE
+router.put(
+  '/employees/:id',
+  uploadEmployeePhoto.single('photo'),
+  saveEmployeePhotoToR2,
+  employeeController.editEmployee
+);
+
 // Get all employees
 router.get('/', employeeController.getAllEmployees);
 
