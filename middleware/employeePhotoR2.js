@@ -10,10 +10,10 @@ const {
 
 const r2 = new S3Client({
   region: 'auto',
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  endpoint: `https://${"39ad8f0adb576f69d3c5de646f7f2277"}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
+    accessKeyId: "db4232305608047502f8a475b3de1bd6",
+    secretAccessKey: "a7881c22ff7b8b0997539ff060d92b78498a0e1dbce60e717f8503ccbf6ae71a",
   }
 });
 
@@ -54,7 +54,7 @@ const saveEmployeePhotoToR2 = async (req, res, next) => {
 
     await r2.send(
       new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME,
+        Bucket: "marketingereignis",
         Key: key,
         Body: req.file.buffer,
         ContentType: req.file.mimetype
