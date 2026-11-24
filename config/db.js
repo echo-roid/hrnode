@@ -25,10 +25,10 @@ const fs = require('fs');
 const path = require('path');
 
 const pool = mysql.createPool({
-  host: "mysql-98a0b01-labail787-7142.i.aivencloud.com",
-  port: Number(process.env.DB_PORT || 24433),
+  host: "mysql-23dc6f96-bhardwajsaurav87-5a7d.l.aivencloud.com",
+  port: Number(process.env.DB_PORT || 19042),
   user: "avnadmin",
-  password: "AVNS_rQZC3_tzaZ0ZVbYKRoO",
+  password: "AVNS_lbivPhOKWxfr_qsgVb-",
   database:"defaultdb",
   ssl: {
     ca: fs.readFileSync(
