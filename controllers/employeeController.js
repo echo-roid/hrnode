@@ -523,6 +523,7 @@ getEmployeeById: async (req, res) => {
 
   // Update employee details
  editEmployee: async (req, res) => {
+  console.log("kjkkjkjkjkj");
   try {
     const { id } = req.params;
 
@@ -557,10 +558,10 @@ getEmployeeById: async (req, res) => {
       current_project,
       appraisal_points,
       leaves,
-      
-      // Dynamic Leave Quotas (JSON)
+
+      // Dynamic Leave Quotas (JSON) — accepted from client, stored into `leaves`
       leave_quotas,
-      
+
       // Salary & Allowances
       annual_ctc,
       basic_salary,
@@ -574,7 +575,7 @@ getEmployeeById: async (req, res) => {
       tds_percentage,
       total_deductions,
       net_salary,
-      
+
       // Date Details
       confirm_date,
       resigned_date,
@@ -582,7 +583,7 @@ getEmployeeById: async (req, res) => {
       marriage_date,
       retired_date,
       resign_reason,
-      
+
       // Official Email
       official_email,
       official_email_password
@@ -591,32 +592,27 @@ getEmployeeById: async (req, res) => {
     // Handle optional new photo
     const photo = req.file ? req.file.filename : existingPhoto;
     const updated_at = new Date();
-    
-    // Process leave quotas - store in leave_quotas JSON column
-    let leaveQuotasJSON = null;
-    if (leave_quotas) {
-      if (typeof leave_quotas === 'string') {
-        leaveQuotasJSON = leave_quotas;
-      } else {
-        leaveQuotasJSON = JSON.stringify(leave_quotas);
-      }
-    } else if (leaves) {
-      // For backward compatibility, convert old leaves format
-      leaveQuotasJSON = typeof leaves === 'string' ? leaves : JSON.stringify(leaves);
-    }
-    
-    // Process leaves column for backward compatibility
+
+    // Single source of truth: write leave quotas into the existing `leaves` column
     let leavesJSON = null;
-    if (leaves) {
-      leavesJSON = typeof leaves === 'string' ? leaves : JSON.stringify(leaves);
-    } else if (leave_quotas) {
-      leavesJSON = typeof leave_quotas === 'string' ? leave_quotas : JSON.stringify(leave_quotas);
+    if (leave_quotas) {
+      leavesJSON = typeof leave_quotas === 'string'
+        ? leave_quotas
+        : JSON.stringify(leave_quotas);
+    } else if (leaves) {
+      leavesJSON = typeof leaves === 'string'
+        ? leaves
+        : JSON.stringify(leaves);
     }
-    
-    // Hash official email password if provided and changed
-    let hashedOfficialEmailPassword = undefined;
+
+    // Hash official email password only if a new one was supplied
+    // Default to null (never undefined) — mysql2 rejects undefined bind params
+    let hashedOfficialEmailPassword = null;
     if (official_email_password && official_email_password !== '********') {
-      hashedOfficialEmailPassword = await bcrypt.hash(official_email_password, saltRounds);
+      hashedOfficialEmailPassword = await bcrypt.hash(
+        official_email_password,
+        saltRounds
+      );
     }
 
     const updateQuery = `
@@ -625,47 +621,74 @@ getEmployeeById: async (req, res) => {
           photo = ?, contact_number = ?, house_address = ?, date_of_birth = ?, 
           team_name = ?, reporting_manager = ?, reporting_manager_id = ?, 
           father_name = ?, mother_name = ?, joining_date = ?, current_project = ?, 
-          appraisal_points = ?, updated_at = ?, leaves = ?, leave_quotas = ?,
+          appraisal_points = ?, updated_at = ?, leaves = ?,
           
-          -- Salary & Allowances
           annual_ctc = ?, basic_salary = ?, hra = ?, conveyance = ?, special_allowance = ?,
           other_allowance = ?, total_earnings = ?, pf_percentage = ?, professional_tax_fixed = ?,
           tds_percentage = ?, total_deductions = ?, net_salary = ?,
           
-          -- Date Details
           confirm_date = ?, resigned_date = ?, left_date = ?, marriage_date = ?,
           retired_date = ?, resign_reason = ?,
           
-          -- Official Email
           official_email = ?,
           official_email_password = COALESCE(?, official_email_password)
       WHERE id = ?
     `;
 
     const values = [
-      name, designation, level, email, age || null, identity_id || null,
-      photo, contact_number || null, house_address || null, date_of_birth || null,
-      team_name || null, reporting_manager || null, reporting_manager_id || null,
-      father_name || null, mother_name || null, joining_date || null,
-      current_project || null, appraisal_points || 0, updated_at, leavesJSON, leaveQuotasJSON,
-      
+      name || null,
+      designation || null,
+      level || null,
+      email || null,
+      age || null,
+      identity_id || null,
+      photo,
+      contact_number || null,
+      house_address || null,
+      date_of_birth || null,
+      team_name || null,
+      reporting_manager || null,
+      reporting_manager_id || null,
+      father_name || null,
+      mother_name || null,
+      joining_date || null,
+      current_project || null,
+      appraisal_points || 0,
+      updated_at,
+      leavesJSON,               // <-- only the existing `leaves` column
+
       // Salary values
-      annual_ctc || null, basic_salary || null, hra || null, conveyance || null,
-      special_allowance || null, other_allowance || null, total_earnings || null,
-      pf_percentage || null, professional_tax_fixed || null, tds_percentage || null,
-      total_deductions || null, net_salary || null,
-      
+      annual_ctc || null,
+      basic_salary || null,
+      hra || null,
+      conveyance || null,
+      special_allowance || null,
+      other_allowance || null,
+      total_earnings || null,
+      pf_percentage || null,
+      professional_tax_fixed || null,
+      tds_percentage || null,
+      total_deductions || null,
+      net_salary || null,
+
       // Date details
-      confirm_date || null, resigned_date || null, left_date || null,
-      marriage_date || null, retired_date || null, resign_reason || null,
-      
+      confirm_date || null,
+      resigned_date || null,
+      left_date || null,
+      marriage_date || null,
+      retired_date || null,
+      resign_reason || null,
+
       // Official email
       official_email || null,
       hashedOfficialEmailPassword,
       id
     ];
 
-    await pool.execute(updateQuery, values);
+    // Safety net: convert any stray undefined -> null so mysql2 never throws
+    const safeValues = values.map(v => (v === undefined ? null : v));
+
+    await pool.execute(updateQuery, safeValues);
 
     res.json({ message: 'Employee updated successfully' });
 
